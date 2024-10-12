@@ -1,0 +1,42 @@
+---
+layout: layouts/base.njk
+section: product
+---
+
+<article>
+  <h1>{{ product_name }}</h1>
+  <p>
+    <small>
+      <time datetime="{{ page.date | machineDate }}">{{ page.date | readableDate }}</time>
+    </small>
+  </p>
+
+  <p>{{ description }}</p>
+
+  <p>Price: ${{ price }}</p>
+
+  {% if images %}
+    <div class="product-images">
+      {% for image in images %}
+        <img src="{{ image }}" alt="{{ product_name }} image">
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {{ layoutContent | safe }}
+
+  {% if tags %}
+    <p>
+    {% for tag in tags %}
+      {%- if tag != "product" -%}
+        {% set tagUrl %}/tags/{{ tag }}/{% endset %}
+        <a href="{{ tagUrl | url }}" rel="tag">{{ tag }}</a>
+      {%- endif -%}
+    {% endfor %}
+    </p>
+  {% endif %}
+</article>
+
+<nav>
+  <a href="{{ '/products/' | url }}">← Products index</a>
+</nav>

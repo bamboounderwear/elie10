@@ -1,0 +1,7 @@
+<ul>
+  {% for product in collections.product %}
+    <li>
+      <a href="{{ product.url }}">{{ product.data.product_name }}</a> - ${{ product.data.price }}
+    </li>
+  {% endfor %}
+</ul>

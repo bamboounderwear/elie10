@@ -1,0 +1,15 @@
+---
+layout: layouts/base.njk
+section: products
+permalink: /products/index.html
+---
+<h1>Our Products</h1>
+
+{% set productslist = collections.product %}
+<ul>
+  {% for product in productslist %}
+    <li>
+      <a href="{{ product.url }}">{{ product.data.product_name }}</a> - ${{ product.data.price }}
+    </li>
+  {% endfor %}
+</ul>
