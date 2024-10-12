@@ -5,44 +5,34 @@ const htmlmin = require("html-minifier");
 const eleventyNavigationPlugin = require("@11ty/eleventy-navigation");
 
 module.exports = function(eleventyConfig) {
-
-  // Eleventy Navigation https://www.11ty.dev/docs/plugins/navigation/
+  
+  // Eleventy Navigation
   eleventyConfig.addPlugin(eleventyNavigationPlugin);
 
-  // Configuration API: use eleventyConfig.addLayoutAlias(from, to) to add
-  // layout aliases! Say you have a bunch of existing content using
-  // layout: post. If you don’t want to rewrite all of those values, just map
-  // post to a new file like this:
-  // eleventyConfig.addLayoutAlias("post", "layouts/my_new_post_layout.njk");
-
-  // Merge data instead of overriding
-  // https://www.11ty.dev/docs/data-deep-merge/
+  // Deep merge data
   eleventyConfig.setDataDeepMerge(true);
 
-  // Add support for maintenance-free post authors
-  // Adds an authors collection using the author key in our post frontmatter
-  // Thanks to @pdehaan: https://github.com/pdehaan
+  // Authors collection for posts
   eleventyConfig.addCollection("authors", collection => {
     const blogs = collection.getFilteredByGlob("posts/*.md");
     return blogs.reduce((coll, post) => {
       const author = post.data.author;
-      if (!author) {
-        return coll;
-      }
-      if (!coll.hasOwnProperty(author)) {
-        coll[author] = [];
-      }
+      if (!author) return coll;
+      if (!coll.hasOwnProperty(author)) coll[author] = [];
       coll[author].push(post.data);
       return coll;
     }, {});
   });
 
-  // Date formatting (human readable)
+  // Products collection
+  eleventyConfig.addCollection("product", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("products/*.md");
+  });
+
+  // Date filters
   eleventyConfig.addFilter("readableDate", dateObj => {
     return DateTime.fromJSDate(dateObj).toFormat("dd LLL yyyy");
   });
-
-  // Date formatting (machine readable)
   eleventyConfig.addFilter("machineDate", dateObj => {
     return DateTime.fromJSDate(dateObj).toFormat("yyyy-MM-dd");
   });
@@ -62,24 +52,22 @@ module.exports = function(eleventyConfig) {
     return minified.code;
   });
 
-  // Minify HTML output
+  // Minify HTML
   eleventyConfig.addTransform("htmlmin", function(content, outputPath) {
-    if (outputPath.indexOf(".html") > -1) {
-      let minified = htmlmin.minify(content, {
+    if (outputPath && outputPath.endsWith(".html")) {
+      return htmlmin.minify(content, {
         useShortDoctype: true,
         removeComments: true,
         collapseWhitespace: true
       });
-      return minified;
     }
     return content;
   });
 
-  // Don't process folders with static assets e.g. images
+  // Passthrough file copy
   eleventyConfig.addPassthroughCopy("favicon.ico");
   eleventyConfig.addPassthroughCopy("static/img");
   eleventyConfig.addPassthroughCopy("admin/");
-  // We additionally output a copy of our CSS for use in Decap CMS previews
   eleventyConfig.addPassthroughCopy("_includes/assets/css/inline.css");
 
   /* Markdown Plugins */
@@ -92,20 +80,13 @@ module.exports = function(eleventyConfig) {
   let opts = {
     permalink: false
   };
-
   eleventyConfig.setLibrary("md", markdownIt(options)
     .use(markdownItAnchor, opts)
   );
 
   return {
     templateFormats: ["md", "njk", "liquid"],
-
-    // If your site lives in a different subdirectory, change this.
-    // Leading or trailing slashes are all normalized away, so don’t worry about it.
-    // If you don’t have a subdirectory, use "" or "/" (they do the same thing)
-    // This is only used for URLs (it does not affect your file structure)
     pathPrefix: "/",
-
     markdownTemplateEngine: "liquid",
     htmlTemplateEngine: "njk",
     dataTemplateEngine: "njk",
