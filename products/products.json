@@ -1,0 +1,9 @@
+{
+    "layout": "layouts/product.njk",
+    "permalink": "products/{{ title | slug }}/index.html",
+    "author": "Anonymous",
+    "tags": [
+      "product"
+    ]
+  }
+  
